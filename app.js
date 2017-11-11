@@ -1,4 +1,5 @@
 var exec = require('child_process').exec;
+var fs = require('fs');
 
 function handleErrorOrRun(callback) {
   return function(error, stdout, stderr) {
