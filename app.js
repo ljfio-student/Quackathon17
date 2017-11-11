@@ -22,17 +22,28 @@ fs.watch('/dev/', function (eventType, filename) {
     var devDir =  '/dev/' + filename;
     var mountDir = '~/Quackathon17/mounts/usb-' + filename;
 
-    // Create a directory for the camera
-    exec('mkdir ' + mountDir, handleErrorOrRun(function(stdout) {
-      // Mount the new USB drive
-      exec('mount ' + devDir + ' ' + mountDir, handleErrorOrRun(function(stdout) {
-        // TODO: Get all the files
-        console.log('mounted USB');
+    fs.stat(devDir, function(error, stats) {
+      if (error) {
+        console.error('error: ' + devDir);
+        return;
+      }
 
-        exec('umount' + mountDir, handleErrorOrRun(function(stderr) {
-          // Unmount the disk
+      // Create a directory for the camera
+      fs.mkdir(mountDir, function(error) {
+        // Mount the new USB drive
+        exec('mount ' + devDir + ' ' + mountDir, handleErrorOrRun(function(stdout) {
+
+          // TODO: Get all the files
+          console.log('mounted USB');
+
+          exec('umount' + mountDir, handleErrorOrRun(function(stderr) {
+            // Unmount the disk
+            fs.rmdir(mountDir, function(error) {
+              console.error('error: ' + mountDir);
+            })
+          }));
         }));
-      }));
-    }));
+      });
+    })
   }
 });
