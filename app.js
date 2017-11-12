@@ -1,5 +1,6 @@
 var exec = require('child_process').exec;
 var fs = require('fs');
+var async = require('async');
 
 function handleErrorOrRun(callback) {
   return function(error, stdout, stderr) {
@@ -15,18 +16,20 @@ function handleErrorOrRun(callback) {
   }
 }
 
-function recursiveList(path) {
+function recursiveList(path, callback) {
   fs.readdir(path, function(err, files) {
-    files.forEach(function(file) {
+    async.each(files,function(file, cb) {
       fs.stat(file, function(err, stat) {
         if (stat.isDirectory()) {
           recursiveList(file);
         } else if (stat.isFile()) {
           console.log(file);
         }
+
+        cb();
       })
-    });
-  })
+    }, callback);
+  });
 }
 
 // Wait for changes
@@ -49,14 +52,14 @@ fs.watch('/dev/', function (eventType, filename) {
 
           // TODO: Get all the files
           console.log('mounted USB');
-          recursiveList(mountDir);
-
-          exec('umount ' + mountDir, handleErrorOrRun(function(stderr) {
-            // Unmount the disk
-            fs.rmdir(mountDir, function(error) {
-              console.error('error: ' + mountDir);
-            })
-          }));
+          recursiveList(mountDir, function() {
+            exec('umount ' + mountDir, handleErrorOrRun(function(stderr) {
+              // Unmount the disk
+              fs.rmdir(mountDir, function(error) {
+                console.error('error: ' + mountDir);
+              })
+            }));
+          });
         }));
       });
     })
