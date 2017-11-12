@@ -49,9 +49,10 @@ std::vector<int> Facial::recognise(cv::Mat frame, std::vector<cv::Rect> faces)
     return labels;
 }
 
-void Facial::analyse(cv::VideoCapture capture)
+std::multimap<int, double> Facial::analyse(cv::VideoCapture capture)
 {
     cv::Mat frame;
+    std::multimap<int, double> detections;
 
     for (;;)
     {
@@ -70,11 +71,15 @@ void Facial::analyse(cv::VideoCapture capture)
 
             if (labels.size() > 0) {
                 for (auto& label : labels) {
-                    std::cout << "Found " << label << std::endl;
+                    double current_frame = capture.get(cv::CAP_PROP_POS_FRAMES);
+
+                    detections.insert(std::pair<int, double>(label, current_frame));
                 }
             }
         }
     }
+
+    return detections;
 }
 
 bool Facial::portrait(cv::Mat frame, cv::Mat *result)

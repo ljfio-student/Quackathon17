@@ -27,7 +27,7 @@ class Facial
     void train(std::vector<cv::Mat>, std::vector<int>);
     void train(cv::Mat, int);
 
-    void analyse(cv::VideoCapture);
+    std::multimap<int, double> analyse(cv::VideoCapture);
 
     bool portrait(cv::Mat, cv::Mat*);
 };

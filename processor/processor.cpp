@@ -112,7 +112,21 @@ int main(int argc, char **argv)
             return -1;
         }
 
-        facial.analyse(video);
+        auto detections = facial.analyse(video);
+
+        nlohmann::json result;
+
+        for (auto iter = detections.begin(); iter != detections.end(); ++iter) {
+            std::string key = std::to_string(iter->first);
+
+            if (result[key].is_array()) {
+                result[key] += iter->second;
+            } else {
+                result[key] = nlohmann::json::array({iter->second});
+            }
+        }
+
+        std::cout << result.dump() << std::endl;
     }
 
     return 0;
