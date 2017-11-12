@@ -11,6 +11,8 @@ class Facial
     cv::CascadeClassifier detectionClassifier;
     cv::Ptr<cv::face::FaceRecognizer> model;
 
+    cv::Mat gray;
+
     bool printDebug;
 
   public:

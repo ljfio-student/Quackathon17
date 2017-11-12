@@ -2,8 +2,6 @@
 
 std::vector<cv::Rect> Facial::detect(cv::Mat frame)
 {
-    cv::Mat gray;
-
     std::vector<cv::Rect> faces;
     std::vector<int> detections;
 
@@ -38,12 +36,23 @@ std::vector<int> Facial::recognise(cv::Mat frame, std::vector<cv::Rect> faces)
     for (auto face = faces.begin(); face != faces.end(); ++face)
     {
         cv::Mat cropped = frame(*face);
-        cv::cvtColor(cropped, cropped, cv::COLOR_BGR2GRAY);
-        cv::resize(cropped, cropped, cv::Size(1024, 1024));
+        cv::Mat resized;
 
-        int label = model->predict(cropped);
+        cv::cvtColor(cropped, gray, cv::COLOR_BGR2GRAY);
+        cv::resize(gray, resized, cv::Size(1024, 1024));
 
-        labels.push_back(label);
+        int label;
+        double confidence;
+
+        model->predict(resized, label, confidence);
+
+        if (printDebug) {
+            std::cout << "face at (" << face->x << ", " << face->y << ") has confidence: " << confidence << std::endl;
+        }
+
+        if (confidence > 0.9) {
+            labels.push_back(label);
+        }
     }
 
     return labels;

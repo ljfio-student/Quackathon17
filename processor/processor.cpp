@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     args::ValueFlag<std::string> classifierFlag(parser, "classifier", "The HAAR facial classifier file", {'c', "classifier"}, args::Options::Required);
     args::ValueFlag<std::string> fileFlag(parser, "file", "File you wish to process", {'f', "file"}, args::Options::Required);
 
-    args::Group orGroup(parser, "Video file specific:", args::Group::Validators::Xor);
+    args::Group orGroup(parser, "Video file specific:", args::Group::Validators::AtMostOne);
     args::ValueFlag<std::string> modelFlag(orGroup, "model", "Model", {'m', "model"});
     args::ValueFlag<std::string> profileFlag(orGroup, "portrait", "Produce a portrait image for us to use later", {'p', "portrait"});
 
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
             std::cerr << "Couldn't process profile, too many or none faces found" << std::endl;
         }
     }
-    else if (fileFlag && modelFlag)
+    else if (fileFlag)
     {
         // Load the data in from stdin
         std::cin >> std::noskipws; // don't skip the whitespace while reading
