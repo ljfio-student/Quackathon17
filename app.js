@@ -79,7 +79,9 @@ function recursiveList(directory, callback) {
               var upBefore = db.collection('videos').findOne({fileName:file},function(err, result) {
                 assert.equal(err, null)
                 if(!result){
-                  db.collection('videos').insertOne( {fileName:file}, function(err, result) {
+                  var filename = file.split(".");
+                  fileName = filename[0];
+                  db.collection('videos').insertOne( {fileName:filename}, function(err, result) {
                     assert.equal(err, null);
                     db.close();
                     var readStream = fs.createReadStream(fullname);
