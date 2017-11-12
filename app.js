@@ -36,7 +36,7 @@ fs.watch('/dev/', function (eventType, filename) {
           // TODO: Get all the files
           console.log('mounted USB');
 
-          exec('umount' + mountDir, handleErrorOrRun(function(stderr) {
+          exec('umount ' + mountDir, handleErrorOrRun(function(stderr) {
             // Unmount the disk
             fs.rmdir(mountDir, function(error) {
               console.error('error: ' + mountDir);
