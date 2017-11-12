@@ -6,6 +6,7 @@ var port = 8080;
 var express = require('express');
 var app = express();
 var MongoClient = require('mongodb').MongoClient;
+var assert = require('assert');
 
 // Connection URL
 var url = 'mongodb://localhost:27017/quackathon';
@@ -30,9 +31,7 @@ app.use(express.static(path.join(__dirname, '')));
    });
  });
 
- var server = app.listen(port, function(){
-   console.log('Server listening on port : ' +port);
- });
+
 
 
 function handleErrorOrRun(callback) {
@@ -145,4 +144,8 @@ fs.watch('/dev/', function (eventType, filename) {
       });
     });
   }
+});
+
+var server = app.listen(port, function(){
+  console.log('Server listening on port : ' +port);
 });
