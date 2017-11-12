@@ -58,7 +58,7 @@ fs.watch('/dev/', function (eventType, filename) {
   if (eventType == 'change' && filename != null && filename.substring(0, 2) == 'sd') {
     var devDir =  '/dev/' + filename;
     var mountDir = '/mnt/usb-' + filename;
-
+    console.log(mountDir);
     fs.stat(devDir, function(error, stats) {
       if (error) {
         console.error('dev stat error: ' + devDir);
