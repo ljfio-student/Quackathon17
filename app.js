@@ -10,6 +10,8 @@ var MongoClient = require('mongodb').MongoClient;
 // Connection URL
 var url = 'mongodb://localhost:27017/quackathon';
 
+app.use(express.static(path.join(__dirname, '')));
+
 // Use connect method to connect to the Server
  app.set('view engine', 'ejs');
 
@@ -89,7 +91,7 @@ function recursiveList(directory, callback) {
             });
           }
         }
-        
+
         cb();
       })
     }, callback);
