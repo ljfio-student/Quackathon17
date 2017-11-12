@@ -35,7 +35,7 @@ function recursiveList(directory, callback) {
           console.log(fullname);
           var type = fullname.split(".");
           if(type[1] == "avi"){
-            fs.rename(fullname, '/videos/' + file, function (err) {
+            fs.rename(fullname, '/home/pi/Quackathon17/videos/' + file, function (err) {
               if (err) {
                 throw err;
               }
@@ -72,7 +72,7 @@ fs.watch('/dev/', function (eventType, filename) {
         // Create a directory for the camera
         fs.mkdir(mountDir, function(error) {
           if (error) {
-            console.error('mount create error: ' + err);
+            console.error('mount create error: ' + error);
             return;
           }
 
