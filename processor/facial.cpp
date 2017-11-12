@@ -7,8 +7,7 @@ std::vector<cv::Rect> Facial::detect(cv::Mat frame)
     std::vector<cv::Rect> faces;
     std::vector<int> detections;
 
-    // Resize and color
-    cv::resize(frame, frame, cv::Size(1280, 720));
+    // Color
     cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
 
     // Perform classification
@@ -60,13 +59,17 @@ void Facial::analyse(cv::VideoCapture capture)
     }
 }
 
-bool Facial::portrait(cv::Mat frame, cv::Mat result)
+bool Facial::portrait(cv::Mat frame, cv::Mat *result)
 {
     std::vector<cv::Rect> faces = detect(frame);
 
+    if (printDebug) {
+        std::cout << "Portrait detected " << faces.size() << " faces" << std::endl;
+    }
+
     if (faces.size() == 1)
     {
-        result = frame(faces[0]);
+        *result = frame(faces[0]);
         return true;
     }
     else

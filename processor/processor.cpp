@@ -11,11 +11,15 @@ int main(int argc, char **argv)
     args::ArgumentParser parser("Processor", "Words.");
     args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
 
-    args::ValueFlag<std::string> classifier(parser, "classifier", "The HAAR facial classifier file", {'c', "classifier"}, args::Options::Required);
+    args::ValueFlag<std::string> classifierFlag(parser, "classifier", "The HAAR facial classifier file", {'c', "classifier"}, args::Options::Required);
+    args::Flag debugFlag(parser, "debug", "Print debug information", {'d', "debug"});
 
-    args::Group group(parser, "Work with video file or profile image:", args::Group::Validators::Xor);
-    args::ValueFlag<std::string> file(group, "file", "File you wish to process", {'f', "file"});
-    args::ValueFlag<std::string> profile(group, "profile", "Produce a profile image for us to use later", {'p', "profile"});
+    args::Group andGroup(parser, "Work with video file or profile image:", args::Group::Validators::All);
+    args::ValueFlag<std::string> fileFlag(andGroup, "file", "File you wish to process", {'f', "file"});
+
+    args::Group orGroup(andGroup, "Video file specific:", args::Group::Validators::Xor);
+    args::ValueFlag<std::string> modelFlag(orGroup, "model", "Model", {'m', "model"});
+    args::ValueFlag<std::string> profileFlag(orGroup, "portrait", "Produce a portrait image for us to use later", {'p', "portrait"});
 
     try
     {
@@ -39,11 +43,24 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    Facial facial(argv[1]);
+    Facial facial(args::get(classifierFlag), args::get(debugFlag));
 
-    if (profile.Matched()) {
+    if (profileFlag && fileFlag)
+    {
+        cv::Mat input = cv::imread(args::get(fileFlag));
+        cv::Mat output;
 
-    } else {
+        if (facial.portrait(input, &output))
+        {
+            cv::imwrite(args::get(profileFlag), output);
+        }
+        else
+        {
+            std::cerr << "Couldn't process profile, too many or none faces found" << std::endl;
+        }
+    }
+    else if (fileFlag && modelFlag)
+    {
         // Load the data in from stdin
         std::cin >> std::noskipws; // don't skip the whitespace while reading
 
@@ -56,11 +73,12 @@ int main(int argc, char **argv)
 
         // open selected camera using selected API
         cv::VideoCapture video;
+        video.open(args::get(fileFlag));
 
         // check if we succeeded
         if (!video.isOpened())
         {
-            std::cerr << "ERROR! Unable to open camera\n";
+            std::cerr << "ERROR! Unable to open video file\n";
             return -1;
         }
 
