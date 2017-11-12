@@ -65,6 +65,10 @@ function recursiveList(directory, callback) {
         } else if (stat.isFile()) {
           console.log(fullname);
           var type = fullname.split(".");
+          var thumb;
+          if(type[2]){
+            thumb = type[1].split("/");
+          }
           if(type[1] == "avi"){
 
             MongoClient.connect(url, function(err, db) {
@@ -88,7 +92,7 @@ function recursiveList(directory, callback) {
                 }
               });
             });
-          }else if(type[2]=="jpg"){
+          }else if(type[2]=="jpg" && thumb[0] == "thumbnail"){
             var readStream = fs.createReadStream(fullname);
             var writeStream = fs.createWriteStream('/home/pi/Quackathon17/thumbnails/' + file);
             readStream.pipe(writeStream);
