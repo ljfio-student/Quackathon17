@@ -2,6 +2,11 @@
 
 std::vector<cv::Rect> Facial::detect(cv::Mat frame)
 {
+    cv::Mat gray;
+
+    std::vector<cv::Rect> faces;
+    std::vector<int> detections;
+
     // Resize and color
     cv::resize(frame, frame, cv::Size(1280, 720));
     cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
@@ -12,16 +17,60 @@ std::vector<cv::Rect> Facial::detect(cv::Mat frame)
     return faces;
 }
 
-void Facial::recognise(cv::Mat frame, std::vector<cv::Rect> faces)
+void Facial::train(cv::Mat image, int label)
 {
+    model->update({image}, {label});
+}
+
+std::vector<int> Facial::recognise(cv::Mat frame, std::vector<cv::Rect> faces)
+{
+    std::vector<int> labels;
+
     for (auto face = faces.begin(); face != faces.end(); ++face)
     {
         cv::Mat cropped = frame(*face);
+
         int label = model->predict(cropped);
+
+        labels.push_back(label);
+    }
+
+    return labels;
+}
+
+void Facial::analyse(cv::VideoCapture capture)
+{
+    cv::Mat frame;
+
+    for (;;)
+    {
+        capture.read(frame);
+
+        if (frame.empty())
+        {
+            break;
+        }
+
+        std::vector<cv::Rect> faces = detect(frame);
+
+        if (faces.size() > 0)
+        {
+            std::vector<int> labels = recognise(frame, faces);
+        }
     }
 }
 
-void Facial::setDetectionClassifier(std::string fileName)
+bool Facial::portrait(cv::Mat frame, cv::Mat result)
 {
-    detectionClassifier.load(fileName);
+    std::vector<cv::Rect> faces = detect(frame);
+
+    if (faces.size() == 1)
+    {
+        result = frame(faces[0]);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }

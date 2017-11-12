@@ -11,16 +11,18 @@ class Facial
     cv::CascadeClassifier detectionClassifier;
     cv::Ptr<cv::face::FaceRecognizer> model;
 
-    cv::Mat gray;
-
-    std::vector<cv::Rect> faces;
-    std::vector<int> detections;
-
   public:
-    std::vector<cv::Rect> detect(cv::Mat);
-    void recognise(cv::Mat, std::vector<cv::Rect>);
+    Facial(std::string fileName) {
+        detectionClassifier.load(fileName);
+        model = cv::face::EigenFaceRecognizer::create();
+    }
 
-    void setDetectionClassifier(std::string);
+    std::vector<cv::Rect> detect(cv::Mat);
+    std::vector<int> recognise(cv::Mat, std::vector<cv::Rect>);
+    void train(cv::Mat, int);
+    void analyse(cv::VideoCapture);
+
+    bool portrait(cv::Mat, cv::Mat);
 };
 
 #endif

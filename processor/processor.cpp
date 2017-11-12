@@ -2,70 +2,70 @@
 #include <iostream>
 #include <stdio.h>
 #include <vector>
+#include "json.hpp"
+#include "args.hxx"
 #include "facial.hpp"
 
 int main(int argc, char **argv)
 {
-    if (argc != 2)
+    args::ArgumentParser parser("Processor", "Words.");
+    args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
+
+    args::ValueFlag<std::string> classifier(parser, "classifier", "The HAAR facial classifier file", {'c', "classifier"}, args::Options::Required);
+
+    args::Group group(parser, "Work with video file or profile image:", args::Group::Validators::Xor);
+    args::ValueFlag<std::string> file(group, "file", "File you wish to process", {'f', "file"});
+    args::ValueFlag<std::string> profile(group, "profile", "Produce a profile image for us to use later", {'p', "profile"});
+
+    try
     {
-        return -1;
+        parser.ParseCLI(argc, argv);
+    }
+    catch (args::Help)
+    {
+        std::cout << parser;
+        return 0;
+    }
+    catch (args::ParseError e)
+    {
+        std::cerr << e.what() << std::endl;
+        std::cerr << parser;
+        return 1;
+    }
+    catch (args::ValidationError e)
+    {
+        std::cerr << e.what() << std::endl;
+        std::cerr << parser;
+        return 1;
     }
 
-    Facial facial;
-    facial.setDetectionClassifier(argv[1]);
+    Facial facial(argv[1]);
 
-    // open selected camera using selected API
-    cv::VideoCapture cap;
-    cv::Mat frame;
-    cv::Scalar green(0, 255, 0);
+    if (profile.Matched()) {
 
-    int deviceID = 0;        // 0 = open default camera
-    int apiID = cv::CAP_ANY; // 0 = autodetect default API
+    } else {
+        // Load the data in from stdin
+        std::cin >> std::noskipws; // don't skip the whitespace while reading
 
-    cap.open(deviceID + apiID);
+        // use stream iterators to copy the stream to a string
+        std::istream_iterator<char> it(std::cin);
+        std::istream_iterator<char> end;
+        std::string results(it, end);
 
-    // check if we succeeded
-    if (!cap.isOpened())
-    {
-        std::cerr << "ERROR! Unable to open camera\n";
-        return -1;
-    }
+        auto json = nlohmann::json::parse(results);
 
-    //--- GRAB AND WRITE LOOP
-    std::cout << "Start grabbing" << std::endl
-              << "Press any key to terminate" << std::endl;
-
-    for (;;)
-    {
-        // wait for a new frame from camera and store it into 'frame'
-        cap.read(frame);
+        // open selected camera using selected API
+        cv::VideoCapture video;
 
         // check if we succeeded
-        if (frame.empty())
+        if (!video.isOpened())
         {
-            std::cerr << "FAILURE" << std::endl;
-            break;
+            std::cerr << "ERROR! Unable to open camera\n";
+            return -1;
         }
 
-        auto faces = facial.detect(frame);
-
-#pragma omp parallel for
-        for (auto face = faces.begin(); face != faces.end(); ++face)
-        {
-            cv::Point start(face->x, face->y), finish(face->x + face->width, face->y + face->height);
-
-            cv::rectangle(frame, start, finish, green, 2);
-        }
-
-        // show live and wait for a key with timeout long enough to show images
-        cv::imshow("Live", frame);
-
-        if (cv::waitKey(5) >= 0)
-        {
-            break;
-        }
+        facial.analyse(video);
     }
 
-    // the camera will be deinitialized automatically in VideoCapture destructor
     return 0;
 }
