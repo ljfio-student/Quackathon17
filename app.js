@@ -71,26 +71,25 @@ function recursiveList(directory, callback) {
                 console.log(err);
               }
 
-             var upBefore = db.collection('videos').findOne({fileName:file},function(err, result) {
+              var upBefore = db.collection('videos').findOne({fileName:file},function(err, result) {
                 assert.equal(err, null)
                 if(!result){
                   db.collection('videos').insertOne( {fileName:file}, function(err, result) {
-                     assert.equal(err, null);
-                     db.close();
-                     var readStream = fs.createReadStream(fullname);
-                     var writeStream = fs.createWriteStream('/home/pi/Quackathon17/videos/' + file);
-                     readStream.pipe(writeStream);
-                     readStream.on("end", function(){
-                     console.log("file " + file + " moved");
-                   });
+                    assert.equal(err, null);
+                    db.close();
+                    var readStream = fs.createReadStream(fullname);
+                    var writeStream = fs.createWriteStream('/home/pi/Quackathon17/videos/' + file);
+                    readStream.pipe(writeStream);
+                    readStream.on("end", function(){
+                      console.log("file " + file + " moved");
+                    });
+                  })
                 }
               });
             });
-
-            })
           }
         }
-
+        
         cb();
       })
     }, callback);
