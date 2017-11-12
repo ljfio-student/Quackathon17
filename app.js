@@ -26,7 +26,7 @@ function recursiveList(path, callback) {
         }
 
         if (stat.isDirectory()) {
-          cosnole.log('recursive: ' + file);
+          console.log('recursive: ' + file);
           recursiveList(file);
         } else if (stat.isFile()) {
           console.log(file);
@@ -47,31 +47,43 @@ fs.watch('/dev/', function (eventType, filename) {
 
     fs.stat(devDir, function(error, stats) {
       if (error) {
-        console.error('error: ' + devDir);
+        console.error('dev stat error: ' + devDir);
         return;
       }
 
-      // Create a directory for the camera
-      fs.mkdir(mountDir, function(error) {
-        // Mount the new USB drive
-        exec('mount ' + devDir + ' ' + mountDir, handleErrorOrRun(function(stdout) {
+      fs.stat(mountDir, function(error) {
+        if (error) {
+          console.error('mount stat error: ' + mountDir);
+          return;
+        }
 
-          // TODO: Get all the files
-          console.log('mounted USB');
-          recursiveList(mountDir, function(err) {
-            if (err) {
-              console.error('recursive: ' + err);
-            }
+        // Create a directory for the camera
+        fs.mkdir(mountDir, function(error) {
+          if (error) {
+            console.error('mount create error: ' + err);
+            return;
+          }
 
-            exec('umount ' + mountDir, handleErrorOrRun(function(stderr) {
-              // Unmount the disk
-              fs.rmdir(mountDir, function(error) {
-                console.error('error: ' + mountDir);
-              })
-            }));
-          });
-        }));
+          // Mount the new USB drive
+          exec('mount ' + devDir + ' ' + mountDir, handleErrorOrRun(function(stdout) {
+
+            // TODO: Get all the files
+            console.log('mounted USB');
+            recursiveList(mountDir, function(error) {
+              if (error) {
+                console.error('recursive: ' + error);
+              }
+
+              exec('umount ' + mountDir, handleErrorOrRun(function(stderr) {
+                // Unmount the disk
+                fs.rmdir(mountDir, function(error) {
+                  console.error('mount remove error: ' + mountDir);
+                });
+              }));
+            });
+          }));
+        });
       });
-    })
+    });
   }
 });
