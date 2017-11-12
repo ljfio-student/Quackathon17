@@ -21,7 +21,7 @@ function recursiveList(path, callback) {
     async.each(files,function(file, cb) {
       fs.stat(file, function(err, stat) {
         if (err) {
-          cb(err);
+          cb();
           return;
         }
 
