@@ -26,6 +26,7 @@ function recursiveList(path, callback) {
         }
 
         if (stat.isDirectory()) {
+          cosnole.log('recursive: ' + file);
           recursiveList(file);
         } else if (stat.isFile()) {
           console.log(file);
