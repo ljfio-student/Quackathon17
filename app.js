@@ -15,6 +15,20 @@ function handleErrorOrRun(callback) {
   }
 }
 
+function recursiveList(path) {
+  fs.readdir(testFolder, function(err, files) {
+    files.forEach(file, function() {
+      fs.stat(file, function(err, stat) {
+        if (stat.isDirectory()) {
+          recursiveList(file);
+        } else if (stat.isFile()) {
+          console.log(file);
+        }
+      })
+    });
+  })
+}
+
 // Wait for changes
 fs.watch('/dev/', function (eventType, filename) {
   // This is likely one of the cameras
@@ -35,6 +49,7 @@ fs.watch('/dev/', function (eventType, filename) {
 
           // TODO: Get all the files
           console.log('mounted USB');
+          recursiveList(mountDir);
 
           exec('umount ' + mountDir, handleErrorOrRun(function(stderr) {
             // Unmount the disk
