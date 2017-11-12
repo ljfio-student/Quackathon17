@@ -2,70 +2,66 @@
 #include <iostream>
 #include <stdio.h>
 #include <vector>
+#include "facial.hpp"
 
-using namespace cv;
-using namespace std;
-
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    if (argc != 2) {
+    if (argc != 2)
+    {
         return -1;
     }
 
-    Mat frame;
-    Mat gray;
-
-    vector<Rect> faces;
-    vector<int> detections;
-
-    CascadeClassifier faceCascade(argv[1]);
-
-    //--- INITIALIZE VIDEOCAPTURE
-    VideoCapture cap;
-
-    // open the default camera using default API
-    cap.open(0);
-
-    // OR advance usage: select any API backend
-    int deviceID = 0;             // 0 = open default camera
-    int apiID = cv::CAP_ANY;      // 0 = autodetect default API
+    Facial facial;
+    facial.setDetectionClassifier(argv[1]);
 
     // open selected camera using selected API
+    cv::VideoCapture cap;
+    cv::Mat frame;
+    cv::Scalar green(0, 255, 0);
+
+    int deviceID = 0;        // 0 = open default camera
+    int apiID = cv::CAP_ANY; // 0 = autodetect default API
+
     cap.open(deviceID + apiID);
 
     // check if we succeeded
-    if (!cap.isOpened()) {
-        cerr << "ERROR! Unable to open camera\n";
+    if (!cap.isOpened())
+    {
+        std::cerr << "ERROR! Unable to open camera\n";
         return -1;
     }
 
     //--- GRAB AND WRITE LOOP
-    cout << "Start grabbing" << endl << "Press any key to terminate" << endl;
+    std::cout << "Start grabbing" << std::endl
+              << "Press any key to terminate" << std::endl;
 
-    for (;;) {
+    for (;;)
+    {
         // wait for a new frame from camera and store it into 'frame'
         cap.read(frame);
-        cv::resize(frame, frame, Size(1280, 720));
 
         // check if we succeeded
-        if (frame.empty()) {
-            cerr << "ERROR! blank frame grabbed\n";
+        if (frame.empty())
+        {
+            std::cerr << "FAILURE" << std::endl;
             break;
         }
 
-        cv::cvtColor(frame, gray, cv::COLOR_BGR2GRAY);
+        auto faces = facial.detect(frame);
 
-        faceCascade.detectMultiScale(gray, faces, detections, 1.2, 5, 2, Size(30, 30));
+#pragma omp parallel for
+        for (auto face = faces.begin(); face != faces.end(); ++face)
+        {
+            cv::Point start(face->x, face->y), finish(face->x + face->width, face->y + face->height);
 
-        #pragma omp parallel for
-        for (vector<Rect>::iterator face = faces.begin(); face != faces.end(); ++face) {
-            cv::rectangle(frame, Point(face->x, face->y), Point(face->x + face->width, face->y + face->height), Scalar(0, 255, 0), 2);
+            cv::rectangle(frame, start, finish, green, 2);
         }
 
         // show live and wait for a key with timeout long enough to show images
-        imshow("Live", frame);
+        cv::imshow("Live", frame);
 
-        if (waitKey(5) >= 0) {
+        if (cv::waitKey(5) >= 0)
+        {
             break;
         }
     }

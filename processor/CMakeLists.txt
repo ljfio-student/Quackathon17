@@ -23,8 +23,10 @@ if(CMAKE_VERSION VERSION_LESS "2.8.11")
   include_directories(${OpenCV_INCLUDE_DIRS})
 endif()
 
+set (CMAKE_CXX_STANDARD 11)
+
 # Declare the executable target built from your sources
-add_executable(processor processor.cpp)
+add_executable(processor processor.cpp facial.cpp)
 
 # Link your application with OpenCV libraries
 target_link_libraries(processor ${OpenCV_LIBS})
