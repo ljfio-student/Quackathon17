@@ -1,6 +1,7 @@
 var exec = require('child_process').exec;
 var fs = require('fs');
 var async = require('async');
+var path = require('path');
 
 function handleErrorOrRun(callback) {
   return function(error, stdout, stderr) {
@@ -16,20 +17,22 @@ function handleErrorOrRun(callback) {
   }
 }
 
-function recursiveList(path, callback) {
-  fs.readdir(path, function(err, files) {
+function recursiveList(directory, callback) {
+  fs.readdir(directory, function(err, files) {
     async.each(files,function(file, cb) {
-      fs.stat(file, function(err, stat) {
+      var fullname = path.join(directory, file);
+
+      fs.stat(fullname, function(err, stat) {
         if (err) {
           cb();
           return;
         }
 
         if (stat.isDirectory()) {
-          console.log('recursive: ' + file);
-          recursiveList(file);
+          console.log('recursive: ' + fullname);
+          recursiveList(fullname);
         } else if (stat.isFile()) {
-          console.log(file);
+          console.log(fullname);
         }
 
         cb();
