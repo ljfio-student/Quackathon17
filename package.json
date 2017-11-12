@@ -1,0 +1,24 @@
+{
+  "name": "Quackathon17",
+  "version": "0.0.0",
+  "description": "quack",
+  "main": "app.js",
+  "dependencies": {
+    "async": "^2.6.0",
+    "express": "^4.16.2",
+    "moment": "^2.19.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ljfio/Quackathon17.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ljfio/Quackathon17/issues"
+  }
+}

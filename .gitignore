@@ -1,0 +1,7 @@
+node_modules/
+
+CMakeCache.txt
+*.cmake
+processor/Makefile
+CMakeFiles/
+processor/processor
