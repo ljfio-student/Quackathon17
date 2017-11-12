@@ -20,7 +20,7 @@ fs.watch('/dev/', function (eventType, filename) {
   // This is likely one of the cameras
   if (eventType == 'change' && filename != null && filename.substring(0, 2) == 'sd') {
     var devDir =  '/dev/' + filename;
-    var mountDir = '~/Quackathon17/mounts/usb-' + filename;
+    var mountDir = '/mnt/usb-' + filename;
 
     fs.stat(devDir, function(error, stats) {
       if (error) {
