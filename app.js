@@ -20,6 +20,10 @@ function recursiveList(path, callback) {
   fs.readdir(path, function(err, files) {
     async.each(files,function(file, cb) {
       fs.stat(file, function(err, stat) {
+        if (err) {
+          cb(err);
+        }
+
         if (stat.isDirectory()) {
           recursiveList(file);
         } else if (stat.isFile()) {
@@ -52,7 +56,11 @@ fs.watch('/dev/', function (eventType, filename) {
 
           // TODO: Get all the files
           console.log('mounted USB');
-          recursiveList(mountDir, function() {
+          recursiveList(mountDir, function(err) {
+            if (err) {
+              console.error('recursive: ' + err);
+            }
+
             exec('umount ' + mountDir, handleErrorOrRun(function(stderr) {
               // Unmount the disk
               fs.rmdir(mountDir, function(error) {
