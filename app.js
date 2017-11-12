@@ -33,6 +33,15 @@ function recursiveList(directory, callback) {
           recursiveList(fullname);
         } else if (stat.isFile()) {
           console.log(fullname);
+          var type = fullname.split(".");
+          if(type[1] == "avi"){
+            fs.rename(fullname, '/videos/' + file, function (err) {
+              if (err) {
+                throw err;
+              }
+            });
+          }
+
         }
 
         cb();
