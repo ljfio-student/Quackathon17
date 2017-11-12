@@ -38,8 +38,10 @@ function recursiveList(directory, callback) {
           if(type[1] == "avi"){
             var readStream = fs.createReadStream(fullname);
             var writeStream = fs.createWriteStream('/home/pi/Quackathon17/videos/');
-            util.pump(readStream,writeStream, function(){
-              fs.unlinkSync(fullname)
+            readStream.pipe(writeStream);
+
+            readStream.on("end", function(){
+              console.log("file " + file + " moved");
             })
           }
         }
