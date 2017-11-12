@@ -16,7 +16,7 @@ function handleErrorOrRun(callback) {
 }
 
 function recursiveList(path) {
-  fs.readdir(testFolder, function(err, files) {
+  fs.readdir(path, function(err, files) {
     files.forEach(file, function() {
       fs.stat(file, function(err, stat) {
         if (stat.isDirectory()) {
