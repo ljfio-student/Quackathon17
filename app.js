@@ -76,11 +76,12 @@ function recursiveList(directory, callback) {
                 console.log(err);
               }
               var filename = file.split(".");
-              var upBefore = db.collection('videos').findOne({fileName:filename[0]},function(err, result) {
+              filename = filename[0];
+              var upBefore = db.collection('videos').findOne({fileName:filename},function(err, result) {
                 assert.equal(err, null)
                 if(!result){
-                  filename = filename[0];
-                  db.collection('videos').insertOne( {fileName:filename[0]}, function(err, result) {
+
+                  db.collection('videos').insertOne( {fileName:filename}, function(err, result) {
                     assert.equal(err, null);
                     db.close();
                     var readStream = fs.createReadStream(fullname);
