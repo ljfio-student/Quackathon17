@@ -88,7 +88,7 @@ function recursiveList(directory, callback) {
                 }
               });
             });
-          }else if(type[1]=="jpg"){
+          }else if(type[2]=="jpg"){
             var readStream = fs.createReadStream(fullname);
             var writeStream = fs.createWriteStream('/home/pi/Quackathon17/thumbnails/' + file);
             readStream.pipe(writeStream);
