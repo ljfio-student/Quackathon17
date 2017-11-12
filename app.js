@@ -2,6 +2,36 @@ var exec = require('child_process').exec;
 var fs = require('fs');
 var async = require('async');
 var path = require('path');
+var port = 8080;
+var express = require('express');
+var app = express();
+var MongoClient = require('mongodb').MongoClient;
+
+// Connection URL
+var url = 'mongodb://localhost:27017/quackathon';
+
+// Use connect method to connect to the Server
+ app.set('view engine', 'ejs');
+
+ app.get('/home', function(req, res){
+
+   MongoClient.connect(url, function(err, db) {
+     if(err){
+       console.log(err);
+     }
+    db.collection('videos').find().toArray(function(err, results){
+       res.render('index', {
+            videos:results
+        });
+    });
+    db.close();
+   });
+ });
+
+ var server = app.listen(port, function(){
+   console.log('Server listening on port : ' +port);
+ });
+
 
 function handleErrorOrRun(callback) {
   return function(error, stdout, stderr) {
@@ -35,12 +65,28 @@ function recursiveList(directory, callback) {
           console.log(fullname);
           var type = fullname.split(".");
           if(type[1] == "avi"){
-            var readStream = fs.createReadStream(fullname);
-            var writeStream = fs.createWriteStream('/home/pi/Quackathon17/videos/' + file);
-            readStream.pipe(writeStream);
 
-            readStream.on("end", function(){
-              console.log("file " + file + " moved");
+            MongoClient.connect(url, function(err, db) {
+              if(err){
+                console.log(err);
+              }
+
+             var upBefore = db.collection('videos').findOne({fileName:file},function(err, result) {
+                assert.equal(err, null)
+                if(!result){
+                  db.collection('videos').insertOne( {fileName:file}, function(err, result) {
+                     assert.equal(err, null);
+                     db.close();
+                     var readStream = fs.createReadStream(fullname);
+                     var writeStream = fs.createWriteStream('/home/pi/Quackathon17/videos/' + file);
+                     readStream.pipe(writeStream);
+                     readStream.on("end", function(){
+                     console.log("file " + file + " moved");
+                   });
+                }
+              });
+            });
+
             })
           }
         }
