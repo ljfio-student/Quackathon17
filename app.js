@@ -2,6 +2,7 @@ var exec = require('child_process').exec;
 var fs = require('fs');
 var async = require('async');
 var path = require('path');
+var util = require('util');
 
 function handleErrorOrRun(callback) {
   return function(error, stdout, stderr) {
