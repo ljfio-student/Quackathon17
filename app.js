@@ -22,6 +22,7 @@ function recursiveList(path, callback) {
       fs.stat(file, function(err, stat) {
         if (err) {
           cb(err);
+          return;
         }
 
         if (stat.isDirectory()) {
