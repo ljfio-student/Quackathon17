@@ -75,12 +75,11 @@ function recursiveList(directory, callback) {
               if(err){
                 console.log(err);
               }
-
-              var upBefore = db.collection('videos').findOne({fileName:file},function(err, result) {
+              var filename = file.split(".");
+              var upBefore = db.collection('videos').findOne({fileName:filename},function(err, result) {
                 assert.equal(err, null)
                 if(!result){
-                  var filename = file.split(".");
-                  fileName = filename[0];
+                  filename = filename[0];
                   db.collection('videos').insertOne( {fileName:filename}, function(err, result) {
                     assert.equal(err, null);
                     db.close();
