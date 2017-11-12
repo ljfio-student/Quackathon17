@@ -52,8 +52,8 @@ fs.watch('/dev/', function (eventType, filename) {
       }
 
       fs.stat(mountDir, function(error) {
-        if (error) {
-          console.error('mount stat error: ' + mountDir);
+        if (!error) {
+          console.error('mount shouldn\'t exist');
           return;
         }
 
@@ -66,7 +66,6 @@ fs.watch('/dev/', function (eventType, filename) {
 
           // Mount the new USB drive
           exec('mount ' + devDir + ' ' + mountDir, handleErrorOrRun(function(stdout) {
-
             // TODO: Get all the files
             console.log('mounted USB');
             recursiveList(mountDir, function(error) {
