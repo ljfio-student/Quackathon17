@@ -16,6 +16,16 @@ std::vector<cv::Rect> Facial::detect(cv::Mat frame)
     return faces;
 }
 
+void Facial::load(std::vector<cv::Mat> images, std::vector<int> labels)
+{
+    model->train(images, labels);
+}
+
+void Facial::train(std::vector<cv::Mat> images, std::vector<int> labels)
+{
+    model->update(images, labels);
+}
+
 void Facial::train(cv::Mat image, int label)
 {
     model->update({image}, {label});
@@ -28,6 +38,8 @@ std::vector<int> Facial::recognise(cv::Mat frame, std::vector<cv::Rect> faces)
     for (auto face = faces.begin(); face != faces.end(); ++face)
     {
         cv::Mat cropped = frame(*face);
+        cv::cvtColor(cropped, cropped, cv::COLOR_BGR2GRAY);
+        cv::resize(cropped, cropped, cv::Size(1024, 1024));
 
         int label = model->predict(cropped);
 
@@ -55,6 +67,12 @@ void Facial::analyse(cv::VideoCapture capture)
         if (faces.size() > 0)
         {
             std::vector<int> labels = recognise(frame, faces);
+
+            if (labels.size() > 0) {
+                for (auto& label : labels) {
+                    std::cout << "Found " << label << std::endl;
+                }
+            }
         }
     }
 }
@@ -63,13 +81,16 @@ bool Facial::portrait(cv::Mat frame, cv::Mat *result)
 {
     std::vector<cv::Rect> faces = detect(frame);
 
-    if (printDebug) {
+    if (printDebug)
+    {
         std::cout << "Portrait detected " << faces.size() << " faces" << std::endl;
     }
 
     if (faces.size() == 1)
     {
-        *result = frame(faces[0]);
+        cv::Mat crop = frame(faces[0]);
+        cv::resize(crop, *result, cv::Size(1024, 1024));
+
         return true;
     }
     else

@@ -22,7 +22,11 @@ class Facial
 
     std::vector<cv::Rect> detect(cv::Mat);
     std::vector<int> recognise(cv::Mat, std::vector<cv::Rect>);
+    void load(std::vector<cv::Mat>, std::vector<int>);
+
+    void train(std::vector<cv::Mat>, std::vector<int>);
     void train(cv::Mat, int);
+
     void analyse(cv::VideoCapture);
 
     bool portrait(cv::Mat, cv::Mat*);

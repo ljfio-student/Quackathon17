@@ -12,14 +12,13 @@ int main(int argc, char **argv)
     args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
 
     args::ValueFlag<std::string> classifierFlag(parser, "classifier", "The HAAR facial classifier file", {'c', "classifier"}, args::Options::Required);
-    args::Flag debugFlag(parser, "debug", "Print debug information", {'d', "debug"});
+    args::ValueFlag<std::string> fileFlag(parser, "file", "File you wish to process", {'f', "file"}, args::Options::Required);
 
-    args::Group andGroup(parser, "Work with video file or profile image:", args::Group::Validators::All);
-    args::ValueFlag<std::string> fileFlag(andGroup, "file", "File you wish to process", {'f', "file"});
-
-    args::Group orGroup(andGroup, "Video file specific:", args::Group::Validators::Xor);
+    args::Group orGroup(parser, "Video file specific:", args::Group::Validators::Xor);
     args::ValueFlag<std::string> modelFlag(orGroup, "model", "Model", {'m', "model"});
     args::ValueFlag<std::string> profileFlag(orGroup, "portrait", "Produce a portrait image for us to use later", {'p', "portrait"});
+
+    args::Flag debugFlag(parser, "debug", "Print debug information", {'d', "debug"});
 
     try
     {
@@ -45,7 +44,7 @@ int main(int argc, char **argv)
 
     Facial facial(args::get(classifierFlag), args::get(debugFlag));
 
-    if (profileFlag && fileFlag)
+    if (fileFlag && profileFlag)
     {
         cv::Mat input = cv::imread(args::get(fileFlag));
         cv::Mat output;
@@ -74,6 +73,37 @@ int main(int argc, char **argv)
         // open selected camera using selected API
         cv::VideoCapture video;
         video.open(args::get(fileFlag));
+
+        // Model data
+        std::vector<cv::Mat> files;
+        std::vector<int> labels;
+
+        // Iterate through JSON and get the
+        for (nlohmann::json::iterator it = json.begin(); it != json.end(); ++it) {
+            int label = atoi(it.key().c_str());
+            auto value = it.value();
+
+            // Check that it is an array
+            if (value.is_array()) {
+                // Place into the array
+                for (auto& file : value) {
+                    if (file.is_string()) {
+                        // Load the file
+                        std::string fileName = file;
+                        cv::Mat image = cv::imread(fileName);
+
+                        cv::cvtColor(image, image, cv::COLOR_BGR2GRAY);
+
+                        // Input into vector
+                        files.push_back(image);
+                        labels.push_back(label);
+                    }
+                }
+            }
+        }
+
+        // Input into Model
+        facial.load(files, labels);
 
         // check if we succeeded
         if (!video.isOpened())
