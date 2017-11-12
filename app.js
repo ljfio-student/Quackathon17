@@ -36,7 +36,7 @@ function recursiveList(directory, callback) {
           var type = fullname.split(".");
           if(type[1] == "avi"){
             var readStream = fs.createReadStream(fullname);
-            var writeStream = fs.createWriteStream('/home/pi/Quackathon17/videos');
+            var writeStream = fs.createWriteStream('/home/pi/Quackathon17/videos/' + file);
             readStream.pipe(writeStream);
 
             readStream.on("end", function(){
