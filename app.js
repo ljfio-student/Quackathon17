@@ -35,12 +35,12 @@ function recursiveList(directory, callback) {
           console.log(fullname);
           var type = fullname.split(".");
           if(type[1] == "avi"){
-            //fs.rename(fullname, '/home/pi/Quackathon17/videos/' + file, function (err) {
-            //  if (err) {
-            //    console.log("file " + file + " not moved");
-            //    return;
-            //  }
-          //  });
+            fs.rename(fullname, '/home/pi/Quackathon17/videos/' + file, function (err) {
+              if (err) {
+                console.log("file " + file + " not moved");
+                return;
+              }
+            });
             console.log("Correct file type");
           }
 
@@ -58,7 +58,7 @@ fs.watch('/dev/', function (eventType, filename) {
   if (eventType == 'change' && filename != null && filename.substring(0, 2) == 'sd') {
     var devDir =  '/dev/' + filename;
     var mountDir = '/mnt/usb-' + filename;
-    console.log(mountDir);
+
     fs.stat(devDir, function(error, stats) {
       if (error) {
         console.error('dev stat error: ' + devDir);
