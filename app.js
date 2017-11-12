@@ -2,7 +2,6 @@ var exec = require('child_process').exec;
 var fs = require('fs');
 var async = require('async');
 var path = require('path');
-var util = require('util');
 
 function handleErrorOrRun(callback) {
   return function(error, stdout, stderr) {
@@ -37,7 +36,7 @@ function recursiveList(directory, callback) {
           var type = fullname.split(".");
           if(type[1] == "avi"){
             var readStream = fs.createReadStream(fullname);
-            var writeStream = fs.createWriteStream('/home/pi/Quackathon17/videos/');
+            var writeStream = fs.createWriteStream('/home/pi/Quackathon17/videos');
             readStream.pipe(writeStream);
 
             readStream.on("end", function(){
